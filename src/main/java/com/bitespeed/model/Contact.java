@@ -18,7 +18,9 @@ public class Contact {
 
     private String email;
 
-    private String linkedId;
+    private int linkedId;
+
+    private LinkPrecedence linkPrecedence;
 
     @NonNull
     private Timestamp createdAt;
