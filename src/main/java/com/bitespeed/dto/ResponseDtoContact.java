@@ -8,6 +8,6 @@ import java.util.List;
 public class ResponseDtoContact {
     private int primaryContactId;
     private List<String> emails;
-    private List<Integer> phoneNumbers;
+    private List<String> phoneNumbers;
     private List<Integer> secondaryContactIds;
 }
