@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -18,7 +19,7 @@ public class ContactController {
     private ContactService contactService;
 
     @PostMapping("/identify")
-    public ResponseEntity<ResponseDtoContact> identity(RequestDtoContact requestDtoContact) {
+    public ResponseEntity<ResponseDtoContact> identity(@RequestBody RequestDtoContact requestDtoContact) {
         ResponseDtoContact responseDtoContact = contactService.identify(requestDtoContact);
         return ResponseEntity.ok(responseDtoContact);
     }
