@@ -30,8 +30,7 @@ public class ContactService {
      * @return responseDtoContact
      */
     public ResponseDtoContact identify(RequestDtoContact requestDtoContact) {
-        if ((requestDtoContact.getEmail() == null || requestDtoContact.getEmail().isEmpty()) &&
-                (requestDtoContact.getPhoneNumber() == null || requestDtoContact.getPhoneNumber().isEmpty())) {
+        if ((requestDtoContact.getEmail() == null || requestDtoContact.getEmail().isEmpty()) && (requestDtoContact.getPhoneNumber() == null || requestDtoContact.getPhoneNumber().isEmpty())) {
             throw new ContactMissingFieldException();
         }
         Contact contact = new Contact();
@@ -44,22 +43,20 @@ public class ContactService {
         Deque<Contact> linkContactsWithEmail = null;
         Deque<Contact> linkContactsWithPhone = null;
 
-        if (requestDtoContact.getEmail() != null || !requestDtoContact.getEmail().isEmpty()) {
+        if (requestDtoContact.getEmail() != null && !requestDtoContact.getEmail().isEmpty()) {
             String email = requestDtoContact.getEmail();
             contact.setEmail(email);
             linkContactsWithEmail = findLinkedContactByEmail(email);
-            if (!linkContactsWithEmail.isEmpty() &&
-                    linkContactsWithEmail.getFirst().getLinkPrecedence() == LinkPrecedence.primary) {
+            if (!linkContactsWithEmail.isEmpty() && linkContactsWithEmail.getFirst().getLinkPrecedence() == LinkPrecedence.primary) {
                 primaryAccountIdByEmail = linkContactsWithEmail.getFirst().getId();
             }
         }
 
-        if (requestDtoContact.getPhoneNumber() != null || !requestDtoContact.getPhoneNumber().isEmpty()) {
+        if (requestDtoContact.getPhoneNumber() != null && !requestDtoContact.getPhoneNumber().isEmpty()) {
             String phoneNumber = requestDtoContact.getPhoneNumber();
             contact.setPhoneNumber(phoneNumber);
-            linkContactsWithPhone = findLinkedContactByEmail(phoneNumber);
-            if (!linkContactsWithPhone.isEmpty() &&
-                    linkContactsWithPhone.getFirst().getLinkPrecedence() == LinkPrecedence.primary) {
+            linkContactsWithPhone = findLinkedContactByPhone(phoneNumber);
+            if (!linkContactsWithPhone.isEmpty() && linkContactsWithPhone.getFirst().getLinkPrecedence() == LinkPrecedence.primary) {
                 primaryAccountIdByPhone = linkContactsWithPhone.getFirst().getId();
             }
         }
@@ -78,22 +75,25 @@ public class ContactService {
             updatePrimaryToSecondary(linkContactsWithPhone.getFirst(), primaryAccountIdByEmail);
         } else if (primaryAccountIdByEmail != -1) {
             primaryAccountId = primaryAccountIdByEmail;
-        } else if (primaryAccountIdByPhone != -1) {
-            primaryAccountId = primaryAccountIdByPhone;
-        }
-
-
-        if (primaryAccountId != -1 && !updatePrimaryAccountToSecondary) {
             contact.setLinkedId(primaryAccountId);
             contact.setLinkPrecedence(LinkPrecedence.secondary);
             contactRepository.save(contact);
-        } else if (!updatePrimaryAccountToSecondary) {
+            linkContactsWithEmail.addLast(contact);
+        } else if (primaryAccountIdByPhone != -1) {
+            primaryAccountId = primaryAccountIdByPhone;
+            contact.setLinkedId(primaryAccountId);
+            contact.setLinkPrecedence(LinkPrecedence.secondary);
+            contactRepository.save(contact);
+            linkContactsWithPhone.addLast(contact);
+        }
+
+
+        if (!updatePrimaryAccountToSecondary && primaryAccountId == -1) {
             contact.setLinkPrecedence(LinkPrecedence.primary);
             contactRepository.save(contact);
         }
 
-        return createResponseDtoContact(contact, updatePrimaryAccountToSecondary,
-                linkContactsWithEmail, linkContactsWithPhone);
+        return createResponseDtoContact(contact, updatePrimaryAccountToSecondary, linkContactsWithEmail, linkContactsWithPhone);
     }
 
     void updatePrimaryToSecondary(Contact oldPrimaryContact, int linkPrimaryContactId) {
@@ -113,11 +113,12 @@ public class ContactService {
         Deque<Contact> linkContacts = new ArrayDeque<>();
         List<Contact> contacts = contactRepository.findAll();
         for (Contact contact : contacts) {
-            if (contact.getPhoneNumber() == phoneNumber) {
+            if (contact.getPhoneNumber().equals(phoneNumber)) {
                 if (contact.getLinkPrecedence() == LinkPrecedence.primary) {
                     linkContacts.addFirst(contact); // add primary contact at first
+                } else {
+                    linkContacts.addLast(contact); // add secondary contact at last
                 }
-                linkContacts.addLast(contact); // add secondary contact at last
             }
         }
         return linkContacts;
@@ -132,11 +133,12 @@ public class ContactService {
         Deque<Contact> linkContacts = new ArrayDeque<>();
         List<Contact> contacts = contactRepository.findAll();
         for (Contact contact : contacts) {
-            if (contact.getEmail() == email) {
+            if (contact.getEmail().equals(email)) {
                 if (contact.getLinkPrecedence() == LinkPrecedence.primary) {
                     linkContacts.addFirst(contact); // add primary contact at first
+                } else {
+                    linkContacts.addLast(contact); // add secondary contact at last
                 }
-                linkContacts.addLast(contact); // add secondary contact at last
             }
         }
         return linkContacts;
@@ -181,17 +183,19 @@ public class ContactService {
             if (newContact.getPhoneNumber() != null && !newContact.getPhoneNumber().isEmpty()) {
                 phoneNumbers.add(newContact.getPhoneNumber());
             }
+            responseDtoContact.setEmails(emails);
+            responseDtoContact.setPhoneNumbers(phoneNumbers);
             return responseDtoContact;
         }
 
         // if newly created contact is secondary contact then
         if (newContact.getLinkPrecedence() == LinkPrecedence.secondary) {
             responseDtoContact.setPrimaryContactId(newContact.getLinkedId());
-            if (linkContactsWithEmail.getFirst().getLinkPrecedence() == LinkPrecedence.primary &&
+            if (!linkContactsWithEmail.isEmpty() && linkContactsWithEmail.getFirst().getLinkPrecedence() == LinkPrecedence.primary &&
                     linkContactsWithEmail.getFirst().getId() == newContact.getLinkedId()) {
                 emails.add(linkContactsWithEmail.getFirst().getEmail());
                 phoneNumbers.add(linkContactsWithEmail.getFirst().getPhoneNumber());
-            } else if (linkContactsWithPhone.getFirst().getLinkPrecedence() == LinkPrecedence.primary &&
+            } else if (!linkContactsWithPhone.isEmpty() && linkContactsWithPhone.getFirst().getLinkPrecedence() == LinkPrecedence.primary &&
                     linkContactsWithPhone.getFirst().getId() == newContact.getLinkedId()) {
                 emails.add(linkContactsWithPhone.getFirst().getEmail());
                 phoneNumbers.add(linkContactsWithPhone.getFirst().getPhoneNumber());
