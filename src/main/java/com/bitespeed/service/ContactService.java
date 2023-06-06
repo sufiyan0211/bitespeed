@@ -9,10 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
+import java.util.*;
 
 /**
  * <h2>service class for Contact related operation</h2>
@@ -221,14 +218,50 @@ public class ContactService {
     ResponseDtoContact fillSecondaryContacts(Deque<Contact> linkContacts, ResponseDtoContact responseDtoContact) {
 
         List<String> emails = responseDtoContact.getEmails();
+        HashSet<String> emailsSet = new HashSet<>();
         List<String> phoneNumbers = responseDtoContact.getPhoneNumbers();
+        HashSet<String> phoneNumbersSet = new HashSet<>();
         List<Integer> secondaryContactIds = responseDtoContact.getSecondaryContactIds();
+        HashSet<Integer> secondaryContactIdsSet = new HashSet<>();
+
+        for (String email : emails) {
+            if (emailsSet.contains(email)) {
+                emails.remove(email);
+            } else {
+                emailsSet.add(email);
+            }
+        }
+
+        for (String phoneNumber : phoneNumbers) {
+            if (phoneNumbersSet.contains(phoneNumber)) {
+                phoneNumbers.remove(phoneNumber);
+            } else {
+                phoneNumbersSet.add(phoneNumber);
+            }
+        }
+
+        for (int secondaryContactId : secondaryContactIds) {
+            if (secondaryContactIdsSet.contains(secondaryContactId)) {
+                secondaryContactIds.remove(secondaryContactId);
+            } else {
+                secondaryContactIdsSet.add(secondaryContactId);
+            }
+        }
 
         for (Contact contact : linkContacts) {
             if (contact.getLinkPrecedence() == LinkPrecedence.secondary) {
-                emails.add(contact.getEmail());
-                phoneNumbers.add(contact.getPhoneNumber());
-                secondaryContactIds.add(contact.getId());
+                if (!emailsSet.contains(contact.getEmail())) {
+                    emails.add(contact.getEmail());
+                    emailsSet.add(contact.getEmail());
+                }
+                if (!phoneNumbersSet.contains(contact.getPhoneNumber())) {
+                    phoneNumbers.add(contact.getPhoneNumber());
+                    phoneNumbersSet.add(contact.getPhoneNumber());
+                }
+                if (!secondaryContactIdsSet.contains(contact.getId())) {
+                    secondaryContactIds.add(contact.getId());
+                    secondaryContactIdsSet.add(contact.getId());
+                }
             }
         }
         responseDtoContact.setEmails(emails);
