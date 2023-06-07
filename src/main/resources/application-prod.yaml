@@ -1,9 +1,9 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/Bitespeed
-    username: root
-    password: admin
+    url: dbc:mysql://bitespeeddb.mysql.database.azure.com:3306/Bitespeed
+    username: sufiyan0211
+    password: bite123Service
   jpa:
     show-sql: true
     generate-ddl: false
