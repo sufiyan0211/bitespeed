@@ -11,13 +11,18 @@ Bitespeed Backend Task: Identity Reconciliation
 
 ## About Task(Identity Reconciliation Service)
 
-### Some Usefull Links:
+### Some Usefull Points:
 - Host/live: [bitespeed.azurewebsites.net](https://bitespeed.azurewebsites.net/swagger-ui.html)
-- Requirements Documentation: [view](https://bitespeed.notion.site/Bitespeed-Backend-Task-Identity-Reconciliation-53392ab01fe149fab989422300423199)
+- Functional Requirements Documentation: [view](https://bitespeed.notion.site/Bitespeed-Backend-Task-Identity-Reconciliation-53392ab01fe149fab989422300423199)
 - Test Cases docs
   - Case1: [view](https://docs.google.com/document/d/1fyk-jZwG_mAPp28Ht4dMgsB9HNeh1IiM8xx31fVlSj4/edit?usp=sharing)
   - Case2: [view](https://docs.google.com/document/d/15tFjnLTNlaMFp49ZFhzwJfZ-Q6m1K9PtDlIByDKwgkw/edit?usp=sharing)
   - Case3: [view](https://docs.google.com/document/d/1NXa0f2NO6KsFVbyQHO8YJrVqJwsuINTbeaOmh9WhrpA/edit?usp=sharing)
+- Non Functional Requirements:
+  - Have some custom Exception handler with meaningful exception message to track the issue.
+  - Relational Database (we have used <b>Mysql</b> Relational Database) and hosted on Azure.
+  - Build CI/CD pipline. (pushing code -> building -> deploying)
+  - Spring boot web service should be hosted on cloud (we have hosted on Azure. We have used <b>free Tier</b> service and hence it will be little <b>slow</b>.)
 
 
 ### Instructions to use
