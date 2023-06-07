@@ -5,6 +5,8 @@ spring:
     username: sufiyan0211
     password: bite123Service
   jpa:
+    hibernate:
+      ddl-auto: update
     show-sql: true
     generate-ddl: false
     database: mysql
