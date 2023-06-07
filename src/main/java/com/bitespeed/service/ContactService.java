@@ -67,6 +67,15 @@ public class ContactService {
          * other contact(primaryContact which is having same PhoneNumber) would be changed to secondary account.
          */
         boolean updatePrimaryAccountToSecondary = false;
+        /**
+         * @condition if request  contains email and phoneNumber of already existing contact
+         * @then we don't need to create the new db entry for that contact just return the old primary contact details.
+         */
+        if (primaryAccountIdByEmail == primaryAccountIdByPhone && primaryAccountIdByEmail != -1) {
+            contact.setId(primaryAccountId);
+            contact.setLinkPrecedence(LinkPrecedence.primary);
+            return createResponseDtoContact(contact, updatePrimaryAccountToSecondary, linkContactsWithEmail, linkContactsWithPhone);
+        }
         if (primaryAccountIdByEmail != -1 && primaryAccountIdByPhone != -1) {
             updatePrimaryAccountToSecondary = true;
             primaryAccountId = primaryAccountIdByEmail;
