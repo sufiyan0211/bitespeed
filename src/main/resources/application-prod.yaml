@@ -1,7 +1,7 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: dbc:mysql://bitespeeddb.mysql.database.azure.com:3306/Bitespeed
+    url: jdbc:mysql://bitespeeddb.mysql.database.azure.com:3306/Bitespeed
     username: sufiyan0211
     password: bite123Service
   jpa:
