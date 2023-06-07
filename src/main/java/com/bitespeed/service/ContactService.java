@@ -7,6 +7,7 @@ import com.bitespeed.model.LinkPrecedence;
 import com.bitespeed.repository.ContactRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.*;
@@ -93,8 +94,8 @@ public class ContactService {
         return createResponseDtoContact(contact, updatePrimaryAccountToSecondary, linkContactsWithEmail, linkContactsWithPhone);
     }
 
+    @Transactional
     void updatePrimaryToSecondary(Contact oldPrimaryContact, int linkPrimaryContactId) {
-        contactRepository.deleteById(oldPrimaryContact.getId());
         oldPrimaryContact.setLinkPrecedence(LinkPrecedence.secondary);
         oldPrimaryContact.setLinkedId(linkPrimaryContactId);
         oldPrimaryContact.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
